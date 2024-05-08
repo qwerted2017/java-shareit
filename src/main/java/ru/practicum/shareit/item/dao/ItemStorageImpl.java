@@ -28,7 +28,10 @@ public class ItemStorageImpl implements ItemStorage {
     @Override
     public Item update(Item item) {
         List<Item> userItems = items.get(item.getOwner());
-        List<Item> delete = userItems.stream().filter(item1 -> item1.getId().equals(item.getId())).collect(Collectors.toList());
+        List<Item> delete = userItems.stream()
+                .filter(item1 -> item1.getId().equals(item.getId()))
+                .collect(Collectors.toList());
+
         userItems.removeAll(delete);
         userItems.add(item);
         return item;
@@ -50,6 +53,10 @@ public class ItemStorageImpl implements ItemStorage {
     @Override
     public List<Item> search(String text) {
         String searchText = text.toLowerCase();
-        return items.values().stream().flatMap(Collection::stream).filter(Item::getAvailable).filter(item -> item.getName().toLowerCase().contains(searchText) || item.getDescription().toLowerCase().contains(searchText)).collect(Collectors.toList());
+        return items.values().stream()
+                .flatMap(Collection::stream)
+                .filter(Item::getAvailable)
+                .filter(item -> item.getName().toLowerCase().contains(searchText) || item.getDescription().toLowerCase().contains(searchText))
+                .collect(Collectors.toList());
     }
 }

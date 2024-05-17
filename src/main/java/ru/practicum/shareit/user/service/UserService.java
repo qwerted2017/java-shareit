@@ -2,35 +2,42 @@ package ru.practicum.shareit.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.dao.UserStorage;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
+import ru.practicum.shareit.user.storage.UserRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserService {
-    private final UserStorage userStorage;
+    private final UserRepository userRepository;
+//    private final UserStorage userStorage;
 
+    @Transactional
     public UserDto add(UserDto userDto) {
         User user = UserMapper.toUser(userDto);
-        return UserMapper.toUserDto(userStorage.add(user));
+        return UserMapper.toUserDto(userRepository.save(user));
     }
 
     public UserDto findById(Long id) {
         if (!isUserExists(id)) {
             throw new NotFoundException("User with id " + id + " not found");
         }
-        User user = userStorage.findById(id);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> {
+                    return new NotFoundException("User with id " + id + " not found");
+                });
         return UserMapper.toUserDto(user);
     }
 
     public List<UserDto> findAll() {
-        return userStorage.findAll().stream()
+        return userRepository.findAll().stream()
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
     }
@@ -54,19 +61,20 @@ public class UserService {
             user.setEmail(existingUser.getEmail());
         }
         user.setId(id);
-        return UserMapper.toUserDto(userStorage.update(id, user));
+//        return UserMapper.toUserDto(userStorage.update(id, user));
+        return UserMapper.toUserDto(userRepository.save(user));
     }
 
     public void delete(Long id) {
         if (isUserExists(id)) {
-            userStorage.delete(id);
+            userRepository.deleteById(id);
         } else {
             throw new NotFoundException("User with id " + id + " not found!");
         }
     }
 
     private boolean isUserExists(Long userId) {
-        return userStorage.findAll().stream()
+        return userRepository.findAll().stream()
                 .anyMatch(user -> user.getId().equals(userId));
     }
 }

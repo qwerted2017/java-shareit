@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-    @Query(value="SELECT b.* from bookings as b " +
-    "JOIN items as i ON i.id = b.item_id " +
-    "WHERE b.booker_id = ?1 " +
-    "ORDER BY b.start_time DESC", nativeQuery = true)
+    @Query(value = "SELECT b.* from bookings as b " +
+            "JOIN items as i ON i.id = b.item_id " +
+            "WHERE b.booker_id = ?1 " +
+            "ORDER BY b.start_time DESC", nativeQuery = true)
     List<Booking> findAllBookingsByBookerId(Long userId);
 
     @Query(value = "SELECT b.* FROM bookings as b " +

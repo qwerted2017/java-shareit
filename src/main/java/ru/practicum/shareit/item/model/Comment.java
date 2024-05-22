@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-@Table(name="comments", schema = "public")
+@Table(name = "comments", schema = "public")
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

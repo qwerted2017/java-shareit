@@ -10,7 +10,7 @@ public enum BookingState {
     WAITING,
     REJECTED;
 
-    public static BookingState from(String bookingState){
+    public static BookingState from(String bookingState) {
         return Arrays.stream(BookingState.values())
                 .filter(value -> value.name().equals(bookingState))
                 .findFirst()

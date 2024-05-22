@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class BookingOutDto {
+
     private Long id;
     private ItemOutDto item;
     private LocalDateTime start;

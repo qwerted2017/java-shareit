@@ -35,7 +35,6 @@ public class ErrorHandler {
         log.warn("Object not found {}", e.getMessage(), e);
         return new ErrorResponse(
                 e.getMessage()
-
         );
     }
 }

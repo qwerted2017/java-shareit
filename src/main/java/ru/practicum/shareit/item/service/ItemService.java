@@ -7,7 +7,6 @@ import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.dto.BookingOutDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.booking.storage.BookingRepository;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
@@ -79,7 +78,6 @@ public class ItemService {
         } else {
             throw new NotFoundException("Item not found");
         }
-//        return itemDto;
     }
 
     @Transactional
@@ -134,7 +132,6 @@ public class ItemService {
                         comments.get(item.getId()),
                         getNextBooking(bookings.get(item.getId()), LocalDateTime.now())
                 ))
-//                .sorted()
                 .collect(toList());
     }
 
@@ -155,16 +152,14 @@ public class ItemService {
         Optional<Item> itemById = itemRepository.findById(itemId);
 
         if (itemById.isEmpty()) {
-//TODO
-            throw new NotFoundException("У пользователя с id = " + userId + " не " +
-                    "существует вещи с id = " + itemId);
+            throw new NotFoundException("User " + userId + "  haven't item " + itemId);
         }
         Item item = itemById.get();
 
         List<Booking> userBookings = bookingRepository.findAllByUserBookings(userId, itemId, LocalDateTime.now());
 
         if (userBookings.isEmpty()) {
-            throw new ValidationException("У пользователя с id   " + userId + " должно быть хотя бы одно бронирование предмета с id " + itemId);
+            throw new ValidationException("User " + userId + " haven't any bookings of item " + itemId);
         }
 
         return CommentMapper.toCommentDtoOut(commentRepository.save(CommentMapper.toComment(commentDto, item, user)));
@@ -182,20 +177,9 @@ public class ItemService {
                 .reduce((booking1, booking2) -> booking1.getStart().isAfter(booking2.getStart()) ? booking1 : booking2)
                 .orElse(null);
     }
-//    private BookingOutDto getLastBooking(List<BookingOutDto> bookings, LocalDateTime time) {
-//        if (bookings == null || bookings.isEmpty()) {
-//            return null;
-//        }
-//
-//        return bookings
-//                .stream()
-//                .filter(bookingDTO -> !bookingDTO.getStart().isAfter(time))
-////                .reduce((booking1, booking2) -> booking1.getStart().isAfter(booking2.getStart()) ? booking2 : booking1)
-//                .reduce((booking1, booking2) -> booking1.getStart().isAfter(booking2.getStart()) ? booking1 : booking2)
-//                .orElse(null);
-//    }
 
     private BookingOutDto getNextBooking(List<BookingOutDto> bookings, LocalDateTime time) {
+
         if (bookings == null || bookings.isEmpty()) {
             return null;
         }

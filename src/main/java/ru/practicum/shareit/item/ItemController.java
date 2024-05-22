@@ -33,7 +33,6 @@ public class ItemController {
     @GetMapping("/{itemId}")
     public ItemOutDto findById(@RequestHeader(Constants.USER_HEADER) Long userId, @PathVariable("itemId") Long itemId) {
         return itemService.findItemById(userId, itemId);
-    // TODO У меня нет 5-й букинги и дальше (см. скриншот). Приходит на ум- по запросно смотреть на коде макса когда появляется 5-я букинга и искать, почему ее нет у меня.
     }
 
     @GetMapping

@@ -16,6 +16,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 public class BookingController {
+
     private final BookingService bookingService;
 
     @PostMapping
@@ -52,7 +53,6 @@ public class BookingController {
     public List<BookingOutDto> getAllOwnerBookings(@RequestHeader(Constants.USER_HEADER) Long ownerId,
                                                    @RequestParam(value = "state", defaultValue = "ALL") String bookingState) {
         log.info("Get all bookings of ownerId: {} and status: {}", ownerId, bookingState);
-        List<BookingOutDto> res = bookingService.findAllOwner(ownerId, bookingState);
-        return res;
+        return bookingService.findAllOwner(ownerId, bookingState);
     }
 }

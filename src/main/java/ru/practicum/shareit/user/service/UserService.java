@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class UserService {
     private final UserRepository userRepository;
-//    private final UserStorage userStorage;
 
     @Transactional
     public UserDto add(UserDto userDto) {
@@ -31,9 +30,7 @@ public class UserService {
             throw new NotFoundException("User with id " + id + " not found");
         }
         User user = userRepository.findById(id)
-                .orElseThrow(() -> {
-                    return new NotFoundException("User with id " + id + " not found");
-                });
+                .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
         return UserMapper.toUserDto(user);
     }
 
@@ -63,9 +60,7 @@ public class UserService {
             user.setEmail(existingUser.getEmail());
         }
         user.setId(id);
-//        return UserMapper.toUserDto(userStorage.update(id, user));
-        User user1 = userRepository.save(user);
-        return UserMapper.toUserDto(user1);
+        return UserMapper.toUserDto(userRepository.save(user));
     }
 
     @Transactional

@@ -1,8 +1,12 @@
 package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentOutDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemOutDto;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.utils.Constants;
 
@@ -22,17 +26,18 @@ public class ItemController {
     }
 
     @PatchMapping("/{itemId}")
-    public ItemDto update(@RequestHeader(Constants.USER_HEADER) Long userId, @RequestBody ItemDto itemDto, @PathVariable Long itemId) {
+    public ItemOutDto update(@RequestHeader(Constants.USER_HEADER) Long userId, @RequestBody ItemDto itemDto, @PathVariable Long itemId) {
         return itemService.update(userId, itemId, itemDto);
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto findById(@RequestHeader(Constants.USER_HEADER) Long userId, @PathVariable("itemId") Long itemId) {
+    public ItemOutDto findById(@RequestHeader(Constants.USER_HEADER) Long userId, @PathVariable("itemId") Long itemId) {
         return itemService.findItemById(userId, itemId);
+    // TODO У меня нет 5-й букинги и дальше (см. скриншот). Приходит на ум- по запросно смотреть на коде макса когда появляется 5-я букинга и искать, почему ее нет у меня.
     }
 
     @GetMapping
-    public List<ItemDto> findAll(@RequestHeader(Constants.USER_HEADER) Long userId) {
+    public List<ItemOutDto> findAll(@RequestHeader(Constants.USER_HEADER) Long userId) {
         return itemService.findAll(userId);
     }
 
@@ -41,4 +46,10 @@ public class ItemController {
         return itemService.search(userId, text);
     }
 
+    @PostMapping("/{itemId}/comment")
+    public CommentOutDto createComment(@RequestHeader(Constants.USER_HEADER) Long userId,
+                                       @Validated @RequestBody CommentDto commentDto,
+                                       @PathVariable Long itemId) {
+        return itemService.createComment(userId, commentDto, itemId);
+    }
 }

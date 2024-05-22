@@ -22,7 +22,8 @@ public class UserService {
     @Transactional
     public UserDto add(UserDto userDto) {
         User user = UserMapper.toUser(userDto);
-        return UserMapper.toUserDto(userRepository.save(user));
+        user = userRepository.save(user);
+        return UserMapper.toUserDto(user);
     }
 
     public UserDto findById(Long id) {
@@ -42,6 +43,7 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public UserDto update(Long id, UserDto userDto) {
         if (!isUserExists(id)) {
             throw new NotFoundException("User with id " + id + " not found!");
@@ -62,9 +64,11 @@ public class UserService {
         }
         user.setId(id);
 //        return UserMapper.toUserDto(userStorage.update(id, user));
-        return UserMapper.toUserDto(userRepository.save(user));
+        User user1 = userRepository.save(user);
+        return UserMapper.toUserDto(user1);
     }
 
+    @Transactional
     public void delete(Long id) {
         if (isUserExists(id)) {
             userRepository.deleteById(id);

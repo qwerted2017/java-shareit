@@ -31,11 +31,17 @@ public class Item {
     @JoinColumn(name = "item_request")
     private ItemRequest itemRequest;
 
-    public Item(Long id, String name, String description, Boolean available, ItemRequest itemRequest) {
-        this.id = id;
+//    public Item(Long id, String name, String description, Boolean available, ItemRequest itemRequest) {
+//        this.id = id;
+//        this.name = name;
+//        this.description = description;
+//        this.available = available;
+//        this.itemRequest = itemRequest;
+//    }
+
+    public Item(String name, String description, Boolean available) {
         this.name = name;
         this.description = description;
         this.available = available;
-        this.itemRequest = itemRequest;
     }
 }

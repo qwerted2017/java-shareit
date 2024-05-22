@@ -11,12 +11,31 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class ErrorHandler {
 
-    @ExceptionHandler({MethodArgumentNotValidException.class})
+    @ExceptionHandler({MethodArgumentNotValidException.class, ValidationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(final Exception e) {
-        log.error("Object not found: {}", e.getMessage());
+        log.error("Bad request: {}", e.getMessage());
         return new ErrorResponse(
                 e.getMessage()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleOtherException(final Throwable e) {
+        log.warn("Internal server error {}", e.getMessage(), e);
+        return new ErrorResponse(
+                e.getMessage()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleNotFoundException(final NotFoundException e) {
+        log.warn("Object not found {}", e.getMessage(), e);
+        return new ErrorResponse(
+                e.getMessage()
+
         );
     }
 }

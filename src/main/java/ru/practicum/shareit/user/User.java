@@ -4,8 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @RequiredArgsConstructor
 @Entity
@@ -17,5 +16,4 @@ public class User {
     private String name;
     @Column(name = "email", nullable = false, unique = true)
     private String email;
-
 }

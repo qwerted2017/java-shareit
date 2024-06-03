@@ -18,11 +18,20 @@ public class ItemOutDto {
     private BookingOutDto lastBooking;
     private List<CommentOutDto> comments;
     private BookingOutDto nextBooking;
+    private Long requestId;
 
     public ItemOutDto(Long id, String name, String description, Boolean available) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.available = available;
+    }
+
+    public ItemOutDto(Long id, String name, String description, Boolean available, Long requestId) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.available = available;
+        this.requestId = requestId;
     }
 }

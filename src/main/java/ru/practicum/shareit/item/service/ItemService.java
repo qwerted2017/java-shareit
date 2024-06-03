@@ -15,6 +15,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.CommentRepository;
 import ru.practicum.shareit.item.storage.ItemRepository;
+import ru.practicum.shareit.request.storage.ItemRequestRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
@@ -39,13 +40,17 @@ public class ItemService {
     private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
     private final UserService userService;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Transactional
-    public ItemDto add(Long userId, ItemDto itemDto) {
+    public ItemOutDto add(Long userId, ItemDto itemDto) {
         UserDto userDto = userService.findById(userId);
         Item item = ItemMapper.toItem(itemDto);
         item.setOwner(UserMapper.toUser(userDto));
-        return ItemMapper.toItemDto(itemRepository.save(item));
+        if (itemDto.getRequestId() != null) {
+            item.setItemRequest(itemRequestRepository.findById(itemDto.getRequestId()).orElse(null));
+        }
+        return ItemMapper.toItemOutDto(itemRepository.save(item));
     }
 
     @Transactional
@@ -190,5 +195,4 @@ public class ItemService {
                 .findFirst()
                 .orElse(null);
     }
-
 }

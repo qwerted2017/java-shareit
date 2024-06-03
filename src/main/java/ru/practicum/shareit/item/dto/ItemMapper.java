@@ -14,7 +14,7 @@ public class ItemMapper {
                 item.getName(),
                 item.getDescription(),
                 item.getAvailable(),
-                item.getItemRequest() != null ? item.getItemRequest() : null
+                item.getItemRequest() != null ? item.getItemRequest().getId() : null
         );
     }
 
@@ -26,16 +26,22 @@ public class ItemMapper {
                 item.getAvailable(),
                 lastBooking,
                 comments,
-                nextBooking
-        );
+                nextBooking,
+                item.getItemRequest() != null ? item.getItemRequest().getId() : null);
+
     }
 
     public ItemOutDto toItemOutDto(Item item) {
-        return new ItemOutDto(
+
+        ItemOutDto itemDtoOut = new ItemOutDto(
                 item.getId(),
                 item.getName(),
                 item.getDescription(),
                 item.getAvailable());
+        if (item.getItemRequest() != null) {
+            itemDtoOut.setRequestId(item.getItemRequest().getId());
+        }
+        return itemDtoOut;
     }
 
     public Item toItem(ItemDto itemDto) {

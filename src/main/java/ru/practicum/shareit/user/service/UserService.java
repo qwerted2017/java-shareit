@@ -16,13 +16,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserService {
+
     private final UserRepository userRepository;
 
     @Transactional
     public UserDto add(UserDto userDto) {
         User user = UserMapper.toUser(userDto);
-        user = userRepository.save(user);
-        return UserMapper.toUserDto(user);
+
+        return UserMapper.toUserDto(userRepository.save(user));
     }
 
     public UserDto findById(Long id) {

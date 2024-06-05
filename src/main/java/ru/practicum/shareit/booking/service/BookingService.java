@@ -168,7 +168,7 @@ public class BookingService {
             case 2:
                 if (!booking.getBooker().getId().equals(userId)
                         && !booking.getItem().getOwner().getId().equals(userId)) {
-                    throw new NotFoundException("User is not booker or owner ");
+                    throw new NotFoundException("User is not booker or owner");
                 }
                 return booking;
         }

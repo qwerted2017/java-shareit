@@ -10,7 +10,6 @@ import ru.practicum.shareit.item.model.Item;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 public interface BookingRepository extends PagingAndSortingRepository<Booking, Long> {
     @Query(value = "SELECT b.* from bookings as b " +
@@ -97,22 +96,6 @@ public interface BookingRepository extends PagingAndSortingRepository<Booking, L
             "AND b.status = 'REJECTED' " +
             "ORDER BY b.start_time DESC", nativeQuery = true)
     Page<Booking> findAllRejectedBookingsByOwnerId(Long ownerId, Pageable pageable);
-
-    @Query(value = "SELECT * FROM bookings as b " +
-            "JOIN items as i ON i.id = b.item_id " +
-            "WHERE b.item_id = ?1 " +
-            "AND b.start_time < ?2 " +
-            "AND b.status = 'APPROVED' " +
-            "ORDER BY b.start_time DESC LIMIT 1 ", nativeQuery = true)
-    Optional<Booking> getLastBooking(Long idItem, LocalDateTime currentTime);
-
-    @Query(value = "SELECT * FROM bookings as b " +
-            "JOIN items as i ON i.id = b.item_id " +
-            "WHERE b.item_id = ?1 " +
-            "AND b.start_time > ?2 " +
-            "AND b.status = 'APPROVED' " +
-            "ORDER BY b.start_time ASC LIMIT 1 ", nativeQuery = true)
-    Optional<Booking> getNextBooking(Long idItem, LocalDateTime currentTime);
 
     @Query(value = "SELECT b.* FROM bookings as b " +
             "JOIN items as i ON i.id = b.item_id " +

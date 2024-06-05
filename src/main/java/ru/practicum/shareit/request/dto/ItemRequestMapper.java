@@ -4,7 +4,6 @@ import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemOutDto;
 import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.stream.Collectors;
 
 @UtilityClass
 public class ItemRequestMapper {
-    public ItemRequest toItemRequest(User user, ItemRequestDto itemRequestDto) {
+    public ItemRequest toItemRequest(ItemRequestDto itemRequestDto) {
         return ItemRequest.builder()
                 .description(itemRequestDto.getDescription())
                 .build();

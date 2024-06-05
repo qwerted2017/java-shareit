@@ -29,7 +29,7 @@ public class ItemRequestService {
     @Transactional
     public ItemRequestOutDto add(Long userId, ItemRequestDto itemRequestDto) {
         User user = UserMapper.toUser(userService.findById(userId));
-        ItemRequest itemRequest = ItemRequestMapper.toItemRequest(user, itemRequestDto);
+        ItemRequest itemRequest = ItemRequestMapper.toItemRequest(itemRequestDto);
         itemRequest.setRequestor(user);
         return ItemRequestMapper.toItemRequestOutDto(itemRequestRepository.save(itemRequest));
     }

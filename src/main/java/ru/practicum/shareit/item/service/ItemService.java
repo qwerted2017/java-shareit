@@ -95,21 +95,21 @@ public class ItemService {
         ItemOutDto itemOutDto = ItemMapper.toItemOutDto(item.get());
         List<Comment> comments = commentRepository.findAllByItemId(itemId);
 
-        List<CommentOutDto> commentOutDtos = comments.stream()
-                .map(CommentMapper::toCommentDtoOut)
+        List<CommentOutDto> commentOutDtoRespons = comments.stream()
+                .map(CommentMapper::toCommentOutDto)
                 .collect(toList());
-        itemOutDto.setComments(commentOutDtos);
+        itemOutDto.setComments(commentOutDtoRespons);
 
         if (!item.get().getOwner().getId().equals(userId)) {
             return itemOutDto;
         }
         List<Booking> bookings = bookingRepository.findAllByItemAndStatusOrderByStartAsc(item.get(), BookingStatus.APPROVED);
-        List<BookingOutDto> bookingOutDtos = bookings.stream()
+        List<BookingOutDto> bookingOutDto = bookings.stream()
                 .map(BookingMapper::toBookingOut)
                 .collect(toList());
 
-        itemOutDto.setLastBooking(getLastBooking(bookingOutDtos, LocalDateTime.now()));
-        itemOutDto.setNextBooking(getNextBooking(bookingOutDtos, LocalDateTime.now()));
+        itemOutDto.setLastBooking(getLastBooking(bookingOutDto, LocalDateTime.now()));
+        itemOutDto.setNextBooking(getNextBooking(bookingOutDto, LocalDateTime.now()));
 
         return itemOutDto;
     }
@@ -123,7 +123,7 @@ public class ItemService {
 
         Map<Long, List<CommentOutDto>> comments = commentRepository.findAllByItemIdIn(itemsId)
                 .stream()
-                .map(CommentMapper::toCommentDtoOut)
+                .map(CommentMapper::toCommentOutDto)
                 .collect(groupingBy(CommentOutDto::getItemId, toList()));
 
         Map<Long, List<BookingOutDto>> bookings = bookingRepository.findAllByItemInAndStatusOrderByStartAsc(itemList, BookingStatus.APPROVED)
@@ -167,7 +167,7 @@ public class ItemService {
             throw new ValidationException("User " + userId + " haven't any bookings of item " + itemId);
         }
 
-        return CommentMapper.toCommentDtoOut(commentRepository.save(CommentMapper.toComment(commentDto, item, user)));
+        return CommentMapper.toCommentOutDto(commentRepository.save(CommentMapper.toComment(commentDto, item, user)));
     }
 
     private BookingOutDto getLastBooking(List<BookingOutDto> bookings, LocalDateTime time) {

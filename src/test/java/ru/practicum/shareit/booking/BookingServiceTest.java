@@ -160,6 +160,7 @@ public class BookingServiceTest {
 
         assertEquals(bookingNotFoundException.getMessage(), "Booking not found.");
     }
+
     @Test
     void getAllByBookerWhenBookingStateAll() {
         List<BookingOutDto> expectedBookingsDtoOut = List.of(BookingMapper.toBookingOut(booking));
@@ -170,6 +171,7 @@ public class BookingServiceTest {
 
         assertEquals(expectedBookingsDtoOut, actualBookingsDtoOut);
     }
+
     @Test
     void getAllByBookerWhenBookingStatePAST() {
         List<BookingOutDto> expectedBookingsDtoOut = List.of(BookingMapper.toBookingOut(booking));

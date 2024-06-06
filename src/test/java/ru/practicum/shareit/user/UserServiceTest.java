@@ -69,4 +69,11 @@ class UserServiceTest {
         assertEquals(actualUsersDto.size(), 1);
         assertEquals(actualUsersDto, expectedUserDto);
     }
+
+    @Test
+    void deleteUser() {
+        long userId = 0L;
+        userService.delete(userId);
+        verify(userRepository, times(1)).deleteById(userId);
+    }
 }

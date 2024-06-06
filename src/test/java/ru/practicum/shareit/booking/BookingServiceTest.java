@@ -5,6 +5,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.dto.BookingOutDto;
@@ -21,6 +23,7 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -78,6 +81,15 @@ public class BookingServiceTest {
             .booker(user)
             .build();
 
+    private final Booking bookingWaiting = Booking.builder()
+            .id(1L)
+            .start(LocalDateTime.now().plusDays(1L))
+            .end(LocalDateTime.now().plusDays(2L))
+            .status(BookingStatus.WAITING)
+            .item(item)
+            .booker(user)
+            .build();
+
     private final BookingDto bookingDto = BookingDto.builder()
             .itemId(1L)
             .start(LocalDateTime.now().plusDays(1L))
@@ -119,6 +131,17 @@ public class BookingServiceTest {
     }
 
     @Test
+    void update() {
+        when(bookingRepository.findById(anyLong())).thenReturn(Optional.of(bookingWaiting));
+        when(bookingRepository.save(any(Booking.class))).thenReturn(bookingWaiting);
+
+        BookingOutDto actualBookingDtoOut = bookingService.update(owner.getId(), bookingWaiting.getId(), true);
+
+        assertEquals(BookingStatus.APPROVED, actualBookingDtoOut.getStatus());
+    }
+
+
+    @Test
     void updateForeignItemInWaiting() {
         when(bookingRepository.findById(anyLong())).thenReturn(Optional.of(booking));
 
@@ -136,6 +159,29 @@ public class BookingServiceTest {
                 () -> bookingService.findBookingByUserId(1L, booking.getId()));
 
         assertEquals(bookingNotFoundException.getMessage(), "Booking not found.");
+    }
+
+    @Test
+    void getAllByBookerWhenBookingStatePAST() {
+        List<BookingOutDto> expectedBookingsDtoOut = List.of(BookingMapper.toBookingOut(booking));
+        when(userService.findById(user.getId())).thenReturn(userDto);
+        when(bookingRepository.findAllPastBookingsByBookerId(anyLong(), any(LocalDateTime.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(booking)));
+
+        List<BookingOutDto> actualBookingsDtoOut = bookingService.findAll(user.getId(), "PAST", 0, 10);
+
+        assertEquals(expectedBookingsDtoOut, actualBookingsDtoOut);
+    }
+
+    @Test
+    void getAllByOwnerWhenBookingStateAll() {
+        List<BookingOutDto> expectedBookingsDtoOut = List.of(BookingMapper.toBookingOut(booking));
+        when(userService.findById(user.getId())).thenReturn(userDto);
+        when(bookingRepository.findAllBookingsByOwnerId(anyLong(), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(booking)));
+
+        List<BookingOutDto> actualBookingsDtoOut = bookingService.findAllOwner(user.getId(), "ALL", 0, 10);
+
+        assertEquals(expectedBookingsDtoOut, actualBookingsDtoOut);
     }
 
     @Test

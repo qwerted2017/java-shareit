@@ -5,6 +5,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.storage.BookingRepository;
@@ -134,6 +136,15 @@ public class ItemServiceTest {
         assertEquals(itemNotFoundException.getMessage(), "Item not found");
     }
 
+    @Test
+    void getItemById() {
+        when(userService.findById(user.getId())).thenReturn(userDto);
+        when(itemRepository.findById(item.getId())).thenReturn(Optional.of(item));
+
+        ItemOutDto actualItemDto = itemService.findItemById(user.getId(), item.getId());
+
+        assertEquals(itemDto, actualItemDto);
+    }
 
     @Test
     void createComment() {
@@ -161,5 +172,16 @@ public class ItemServiceTest {
 
         assertEquals(userBookingsNotFoundException.getMessage(), "User " + user.getId() + " haven't any bookings of item " + item.getId());
 
+    }
+
+    @Test
+    void searchItems() {
+        when(itemRepository.findAllByOwnerIdOrderById(anyLong())).thenReturn(List.of(item));
+
+        List<ItemOutDto> actualItemsDto = itemService.findAll(1L);
+
+        assertEquals(1, actualItemsDto.size());
+        assertEquals(1, actualItemsDto.get(0).getId());
+        assertEquals("item", actualItemsDto.get(0).getName());
     }
 }

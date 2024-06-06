@@ -27,6 +27,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(BookingController.class)
@@ -95,7 +96,7 @@ public class BookingControllerTest {
 
         bookingDto.setItemId(null);
 
-        when(bookingService.add(user.getId(), bookingDto)).thenReturn(bookingOutDto);
+        when(bookingService.findBookingByUserId(user.getId(), bookingDto.getItemId())).thenReturn(bookingOutDto);
 
         mockMvc.perform(post("/bookings")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -140,6 +141,63 @@ public class BookingControllerTest {
         verify(bookingService, never()).add(user.getId(), bookingDto);
     }
 
+    @SneakyThrows
+    @Test
+    void addBookingIncorrectStart() {
+        bookingOutDto.setStart(LocalDateTime.now().minusHours(1));
+
+        mockMvc.perform(
+                        post("/bookings")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(bookingOutDto))
+                                .header(Constants.USER_HEADER, user.getId()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @SneakyThrows
+    @Test
+    void addBookingStartIsNull() {
+        bookingOutDto.setStart(null);
+        mockMvc.perform(
+                        post("/bookings")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(bookingOutDto))
+                                .header(Constants.USER_HEADER, user.getId()))
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @SneakyThrows
+    @Test
+    void addBookingIncorrectPast() {
+        bookingOutDto.setEnd(LocalDateTime.now().minusHours(1));
+
+        mockMvc.perform(
+                        post("/bookings")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(bookingOutDto))
+                                .header(Constants.USER_HEADER, user.getId()))
+                .andExpect(status().isBadRequest());
+    }
+
+    @SneakyThrows
+    @Test
+    void getBookingById() {
+        long bookingId = 1L;
+        when(bookingService.findBookingByUserId(any(Long.class), any(Long.class))).thenReturn(bookingOutDto);
+        mockMvc.perform(
+                        get("/bookings/{bookingId}", bookingId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header(Constants.USER_HEADER, user.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").isNotEmpty())
+                .andExpect(jsonPath("$.start").isNotEmpty())
+                .andExpect(jsonPath("$.end").isNotEmpty())
+                .andExpect(jsonPath("$.status").value(bookingOutDto.getStatus().toString()))
+                .andExpect(jsonPath("$.item").value(bookingOutDto.getItem()))
+                .andExpect(jsonPath("$.booker").value(bookingOutDto.getBooker()));
+    }
+
     @Test
     @SneakyThrows
     void getBookingsOwners() {
@@ -161,4 +219,29 @@ public class BookingControllerTest {
 
         assertEquals(objectMapper.writeValueAsString(List.of(bookingOutDto)), result);
     }
+
+    @Test
+    @SneakyThrows
+    void getAllShouldReturnStatusIsOk() {
+        Integer from = 0;
+        Integer size = 10;
+        String state = "ALL";
+
+        when(bookingService.findAll(user.getId(), BookingState.ALL.toString(), 0, 10))
+                .thenReturn(List.of(bookingOutDto));
+
+        String result = mockMvc.perform(get("/bookings")
+                        .param("state", state)
+                        .param("from", String.valueOf(from))
+                        .param("size", String.valueOf(size))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(Constants.USER_HEADER, user.getId()))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        assertEquals(objectMapper.writeValueAsString(List.of(bookingOutDto)), result);
+    }
+
 }

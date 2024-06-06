@@ -62,6 +62,24 @@ public class ItemRequestControllerTest {
         assertEquals(objectMapper.writeValueAsString(requestDto), result);
     }
 
+
+    @Test
+    @SneakyThrows
+    void getUserRequests() {
+        when(itemRequestService.getUserRequests(user.getId())).thenReturn(List.of(requestDto));
+
+        String result = mockMvc.perform(MockMvcRequestBuilders.get("/requests")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(Constants.USER_HEADER, user.getId()))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        assertEquals(objectMapper.writeValueAsString(List.of(requestDto)), result);
+    }
+
     @Test
     @SneakyThrows
     void getAllRequests() {

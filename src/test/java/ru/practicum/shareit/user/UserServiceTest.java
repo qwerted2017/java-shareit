@@ -71,6 +71,30 @@ class UserServiceTest {
     }
 
     @Test
+    void updateUserTest() {
+        User userToSave = UserMapper.toUser(userDto);
+        User updatedUser = User.builder().id(1L).name("Updated User").email("updated@example.com").build();
+
+        lenient().when(userRepository.save(userToSave)).thenReturn(userToSave);
+        lenient().when(userRepository.save(updatedUser)).thenReturn(updatedUser);
+
+        UserDto user = userService.add(userDto);
+        Long userId = user.getId();
+
+        UserDto fieldsToUpdate = new UserDto();
+        fieldsToUpdate.setEmail("updated@example.com");
+        fieldsToUpdate.setName("Updated User");
+
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(UserMapper.toUser(user)));
+
+        UserDto updatedUserDto = userService.update(userId, fieldsToUpdate);
+
+        assertNotNull(updatedUserDto);
+        assertEquals("Updated User", updatedUserDto.getName());
+        assertEquals("updated@example.com", updatedUserDto.getEmail());
+    }
+
+    @Test
     void deleteUser() {
         long userId = 0L;
         userService.delete(userId);

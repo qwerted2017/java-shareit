@@ -10,10 +10,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.dto.*;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.storage.UserRepository;
 
 import java.util.List;
 
@@ -21,8 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.practicum.shareit.utils.Constants.USER_HEADER;
@@ -39,6 +40,10 @@ public class ItemControllerTest {
 
     @MockBean
     private ItemService itemService;
+
+    @MockBean
+    private UserRepository userRepository;
+
 
     private final User user = User.builder()
             .id(1L)
@@ -197,5 +202,18 @@ public class ItemControllerTest {
                 .getContentAsString();
 
         assertEquals(objectMapper.writeValueAsString(commentDtoOut), result);
+    }
+
+    @Test
+    @SneakyThrows
+    void getItemForWrongUserId() {
+        long userId = 100L;
+
+        when(itemService.findItemById(any(Long.class), any(Long.class))).thenThrow(NotFoundException.class);
+        mockMvc.perform(
+                        get("/items/{itemId}", userId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("X-Sharer-User-Id", 1))
+                .andExpect(status().isNotFound());
     }
 }

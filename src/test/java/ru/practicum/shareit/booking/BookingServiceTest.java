@@ -160,7 +160,16 @@ public class BookingServiceTest {
 
         assertEquals(bookingNotFoundException.getMessage(), "Booking not found.");
     }
+    @Test
+    void getAllByBookerWhenBookingStateAll() {
+        List<BookingOutDto> expectedBookingsDtoOut = List.of(BookingMapper.toBookingOut(booking));
+        when(userService.findById(user.getId())).thenReturn(userDto);
+        when(bookingRepository.findAllBookingsByBookerId(anyLong(), any(Pageable.class))).thenReturn(new PageImpl<>(List.of(booking)));
 
+        List<BookingOutDto> actualBookingsDtoOut = bookingService.findAll(user.getId(), "ALL", 0, 10);
+
+        assertEquals(expectedBookingsDtoOut, actualBookingsDtoOut);
+    }
     @Test
     void getAllByBookerWhenBookingStatePAST() {
         List<BookingOutDto> expectedBookingsDtoOut = List.of(BookingMapper.toBookingOut(booking));

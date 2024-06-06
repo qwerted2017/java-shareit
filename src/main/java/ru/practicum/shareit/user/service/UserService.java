@@ -43,8 +43,7 @@ public class UserService {
     public UserDto update(Long id, UserDto userDto) {
 
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Пользователя с " + id + " не существует")
-                );
+                .orElseThrow(() -> new NotFoundException("User with id " + id + " not found"));
         if (userDto.getName() != null) {
             user.setName(userDto.getName());
         }

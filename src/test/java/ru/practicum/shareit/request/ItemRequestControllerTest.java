@@ -89,6 +89,8 @@ public class ItemRequestControllerTest {
         when(itemRequestService.getAllRequests(user.getId(), pageable)).thenReturn(List.of(requestDto));
 
         String result = mockMvc.perform(MockMvcRequestBuilders.get("/requests/all")
+                        .param("from", String.valueOf(from))
+                        .param("size", String.valueOf(size))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header(Constants.USER_HEADER, user.getId()))

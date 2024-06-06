@@ -157,7 +157,7 @@ public class ItemService {
         Optional<Item> itemById = itemRepository.findById(itemId);
 
         if (itemById.isEmpty()) {
-            throw new NotFoundException("User " + userId + "  haven't item " + itemId);
+            throw new NotFoundException("User " + userId + " haven't item " + itemId);
         }
         Item item = itemById.get();
 

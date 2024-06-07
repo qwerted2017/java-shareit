@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -74,6 +75,7 @@ public class BookingControllerTest {
 
     @Test
     @SneakyThrows
+    @DisplayName("Бронирование создается успешно")
     void addBookingIsValid() {
         when(bookingService.add(user.getId(), bookingDto)).thenReturn(bookingOutDto);
 
@@ -89,6 +91,7 @@ public class BookingControllerTest {
         assertEquals(objectMapper.writeValueAsString(bookingOutDto), result);
     }
 
+    @DisplayName("Бронирование создается с неправильным UserId")
     @Test
     @SneakyThrows
     void bookingCreateFailedByWrongUserId() {
@@ -108,6 +111,7 @@ public class BookingControllerTest {
 
     @Test
     @SneakyThrows
+    @DisplayName("Список бронирований не возвращается из-за неправильного from")
     void bookingGetAllWithWrongFrom() {
         Integer from = -1;
         Integer size = 20;

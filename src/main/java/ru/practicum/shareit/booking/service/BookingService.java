@@ -73,7 +73,6 @@ public class BookingService {
         return BookingMapper.toBookingOut(booking);
     }
 
-    @Transactional
     public List<BookingOutDto> findAll(Long bookerId, String state, Integer from, Integer size) {
         Pageable pageable = PageRequest.of((from == null ? 0 : from) / ((size == null || size < 1) ? 10 : size), (size == null || size < 1) ? 10 : size);
         userService.findById(bookerId);

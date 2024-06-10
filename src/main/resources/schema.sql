@@ -30,8 +30,8 @@ create table if not exists items (
     description VARCHAR(512) NOT NULL,
     available BOOLEAN default false,
     owner_id int references users (id) ON delete CASCADE,
-    item_request BIGINT,
-    FOREIGN KEY (item_request) REFERENCES requests (id),
+    request_id BIGINT,
+    FOREIGN KEY (request_id) REFERENCES requests (id),
     CONSTRAINT pk_item PRIMARY KEY (id)
 );
 

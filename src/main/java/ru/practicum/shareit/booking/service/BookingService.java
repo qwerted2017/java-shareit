@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -71,35 +73,36 @@ public class BookingService {
         return BookingMapper.toBookingOut(booking);
     }
 
-    public List<BookingOutDto> findAll(Long bookerId, String state) {
+    public List<BookingOutDto> findAll(Long bookerId, String state, Integer from, Integer size) {
+        Pageable pageable = PageRequest.of((from == null ? 0 : from) / ((size == null || size < 1) ? 10 : size), (size == null || size < 1) ? 10 : size);
         userService.findById(bookerId);
         switch (checkState(state)) {
             case ALL:
-                return bookingRepository.findAllBookingsByBookerId(bookerId).stream()
+                return bookingRepository.findAllBookingsByBookerId(bookerId, pageable).stream()
                         .map(BookingMapper::toBookingOut)
                         .collect(Collectors.toList());
             case CURRENT:
-                return bookingRepository.findAllCurrentBookingsByBookerId(bookerId, LocalDateTime.now()).stream()
+                return bookingRepository.findAllCurrentBookingsByBookerId(bookerId, LocalDateTime.now(), pageable).stream()
                         .map(BookingMapper::toBookingOut)
                         .collect(Collectors.toList());
 
             case PAST:
-                return bookingRepository.findAllPastBookingsByBookerId(bookerId, LocalDateTime.now()).stream()
+                return bookingRepository.findAllPastBookingsByBookerId(bookerId, LocalDateTime.now(), pageable).stream()
                         .map(BookingMapper::toBookingOut)
                         .collect(Collectors.toList());
 
             case FUTURE:
-                return bookingRepository.findAllFutureBookingsByBookerId(bookerId, LocalDateTime.now()).stream()
+                return bookingRepository.findAllFutureBookingsByBookerId(bookerId, LocalDateTime.now(), pageable).stream()
                         .map(BookingMapper::toBookingOut)
                         .collect(Collectors.toList());
 
             case WAITING:
-                return bookingRepository.findAllWaitingBookingsByBookerId(bookerId, LocalDateTime.now()).stream()
+                return bookingRepository.findAllWaitingBookingsByBookerId(bookerId, LocalDateTime.now(), pageable).stream()
                         .map(BookingMapper::toBookingOut)
                         .collect(Collectors.toList());
 
             case REJECTED:
-                return bookingRepository.findAllRejectedBookingsByBookerId(bookerId, LocalDateTime.now()).stream()
+                return bookingRepository.findAllRejectedBookingsByBookerId(bookerId, LocalDateTime.now(), pageable).stream()
                         .map(BookingMapper::toBookingOut)
                         .collect(Collectors.toList());
             default:
@@ -107,35 +110,37 @@ public class BookingService {
         }
     }
 
-    public List<BookingOutDto> findAllOwner(Long ownerId, String state) {
+    public List<BookingOutDto> findAllOwner(Long ownerId, String state, Integer from, Integer size) {
+        Pageable pageable = PageRequest.of((from == null ? 0 : from) / ((size == null || size < 1) ? 10 : size), (size == null || size < 1) ? 10 : size);
+
         userService.findById(ownerId);
         switch (checkState(state)) {
             case ALL:
-                return bookingRepository.findAllBookingsByOwnerId(ownerId).stream()
+                return bookingRepository.findAllBookingsByOwnerId(ownerId, pageable).stream()
                         .map(BookingMapper::toBookingOut)
                         .collect(Collectors.toList());
             case CURRENT:
-                return bookingRepository.findAllCurrentBookingsByOwnerId(ownerId, LocalDateTime.now()).stream()
+                return bookingRepository.findAllCurrentBookingsByOwnerId(ownerId, LocalDateTime.now(), pageable).stream()
                         .map(BookingMapper::toBookingOut)
                         .collect(Collectors.toList());
 
             case PAST:
-                return bookingRepository.findAllPastBookingsByOwnerId(ownerId, LocalDateTime.now()).stream()
+                return bookingRepository.findAllPastBookingsByOwnerId(ownerId, LocalDateTime.now(), pageable).stream()
                         .map(BookingMapper::toBookingOut)
                         .collect(Collectors.toList());
 
             case FUTURE:
-                return bookingRepository.findAllFutureBookingsByOwnerId(ownerId, LocalDateTime.now()).stream()
+                return bookingRepository.findAllFutureBookingsByOwnerId(ownerId, LocalDateTime.now(), pageable).stream()
                         .map(BookingMapper::toBookingOut)
                         .collect(Collectors.toList());
 
             case WAITING:
-                return bookingRepository.findAllWaitingBookingsByOwnerId(ownerId, LocalDateTime.now()).stream()
+                return bookingRepository.findAllWaitingBookingsByOwnerId(ownerId, LocalDateTime.now(), pageable).stream()
                         .map(BookingMapper::toBookingOut)
                         .collect(Collectors.toList());
 
             case REJECTED:
-                return bookingRepository.findAllRejectedBookingsByOwnerId(ownerId).stream()
+                return bookingRepository.findAllRejectedBookingsByOwnerId(ownerId, pageable).stream()
                         .map(BookingMapper::toBookingOut)
                         .collect(Collectors.toList());
             default:
@@ -162,7 +167,7 @@ public class BookingService {
             case 2:
                 if (!booking.getBooker().getId().equals(userId)
                         && !booking.getItem().getOwner().getId().equals(userId)) {
-                    throw new NotFoundException("User is not booker or owner ");
+                    throw new NotFoundException("User is not booker or owner");
                 }
                 return booking;
         }

@@ -15,6 +15,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.CommentRepository;
 import ru.practicum.shareit.item.storage.ItemRepository;
+import ru.practicum.shareit.request.storage.ItemRequestRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
@@ -39,13 +40,17 @@ public class ItemService {
     private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
     private final UserService userService;
+    private final ItemRequestRepository itemRequestRepository;
 
     @Transactional
-    public ItemDto add(Long userId, ItemDto itemDto) {
+    public ItemOutDto add(Long userId, ItemDto itemDto) {
         UserDto userDto = userService.findById(userId);
         Item item = ItemMapper.toItem(itemDto);
         item.setOwner(UserMapper.toUser(userDto));
-        return ItemMapper.toItemDto(itemRepository.save(item));
+        if (itemDto.getRequestId() != null) {
+            item.setItemRequest(itemRequestRepository.findById(itemDto.getRequestId()).orElse(null));
+        }
+        return ItemMapper.toItemOutDto(itemRepository.save(item));
     }
 
     @Transactional
@@ -90,21 +95,21 @@ public class ItemService {
         ItemOutDto itemOutDto = ItemMapper.toItemOutDto(item.get());
         List<Comment> comments = commentRepository.findAllByItemId(itemId);
 
-        List<CommentOutDto> commentOutDtos = comments.stream()
-                .map(CommentMapper::toCommentDtoOut)
+        List<CommentOutDto> commentOutDtoRespons = comments.stream()
+                .map(CommentMapper::toCommentOutDto)
                 .collect(toList());
-        itemOutDto.setComments(commentOutDtos);
+        itemOutDto.setComments(commentOutDtoRespons);
 
         if (!item.get().getOwner().getId().equals(userId)) {
             return itemOutDto;
         }
         List<Booking> bookings = bookingRepository.findAllByItemAndStatusOrderByStartAsc(item.get(), BookingStatus.APPROVED);
-        List<BookingOutDto> bookingOutDtos = bookings.stream()
+        List<BookingOutDto> bookingOutDto = bookings.stream()
                 .map(BookingMapper::toBookingOut)
                 .collect(toList());
 
-        itemOutDto.setLastBooking(getLastBooking(bookingOutDtos, LocalDateTime.now()));
-        itemOutDto.setNextBooking(getNextBooking(bookingOutDtos, LocalDateTime.now()));
+        itemOutDto.setLastBooking(getLastBooking(bookingOutDto, LocalDateTime.now()));
+        itemOutDto.setNextBooking(getNextBooking(bookingOutDto, LocalDateTime.now()));
 
         return itemOutDto;
     }
@@ -118,7 +123,7 @@ public class ItemService {
 
         Map<Long, List<CommentOutDto>> comments = commentRepository.findAllByItemIdIn(itemsId)
                 .stream()
-                .map(CommentMapper::toCommentDtoOut)
+                .map(CommentMapper::toCommentOutDto)
                 .collect(groupingBy(CommentOutDto::getItemId, toList()));
 
         Map<Long, List<BookingOutDto>> bookings = bookingRepository.findAllByItemInAndStatusOrderByStartAsc(itemList, BookingStatus.APPROVED)
@@ -152,7 +157,7 @@ public class ItemService {
         Optional<Item> itemById = itemRepository.findById(itemId);
 
         if (itemById.isEmpty()) {
-            throw new NotFoundException("User " + userId + "  haven't item " + itemId);
+            throw new NotFoundException("User " + userId + " haven't item " + itemId);
         }
         Item item = itemById.get();
 
@@ -162,7 +167,7 @@ public class ItemService {
             throw new ValidationException("User " + userId + " haven't any bookings of item " + itemId);
         }
 
-        return CommentMapper.toCommentDtoOut(commentRepository.save(CommentMapper.toComment(commentDto, item, user)));
+        return CommentMapper.toCommentOutDto(commentRepository.save(CommentMapper.toComment(commentDto, item, user)));
     }
 
     private BookingOutDto getLastBooking(List<BookingOutDto> bookings, LocalDateTime time) {
@@ -190,5 +195,4 @@ public class ItemService {
                 .findFirst()
                 .orElse(null);
     }
-
 }

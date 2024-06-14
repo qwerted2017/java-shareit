@@ -25,7 +25,6 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - server
       - db
     environment:
       - SHAREIT_SERVER_URL=http://server:9090
